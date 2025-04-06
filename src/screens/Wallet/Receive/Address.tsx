@@ -9,11 +9,12 @@ import Modal from '../../../components/Modal'
 import { NetworkName } from '../../../lib/network'
 import { Mnemonic } from '../../../lib/types'
 import { useStorage } from '../../../lib/storage'
+import NeedsPassword from '../../../components/NeedsPassword'
 
 export default function Address() {
   const { navigate } = useContext(NavigationContext)
   const { wallet } = useContext(WalletContext)
-  const [mnemonic] = useStorage<Mnemonic>('mnemonic', '')
+  const [mnemonic, setMnemonic] = useState<Mnemonic>('')
 
   const [address, setAddress] = useState<string>('')
   const [copied, setCopied] = useState(false)
@@ -48,44 +49,42 @@ export default function Address() {
 
       <div className='flex flex-col mt-2 overflow-auto'>
         <div className='m-auto'>
-          <QrCode value={address} />
+          {address ? (
+            <QrCode value={address} />
+          ) : (
+            <div className='w-64 h-64 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg'>
+              <p className='text-gray-500 dark:text-gray-400'>Loading address...</p>
+            </div>
+          )}
         </div>
-        <p
-          className='text-md sm:text-sm text-gray-500 dark:text-gray-200 mt-2'
-          style={{ maxWidth: '90vw', wordWrap: 'break-word' }}
-        >
-          {address.substring(0, 5)}
-          <b>{address.substring(5, 13)}</b>
-          {address.substring(13, address.length - 8)}
-          <b>{address.substring(address.length - 8)}</b>
-        </p>
+        <div className='mt-4 text-center'>
+          <p className='text-sm text-gray-500 dark:text-gray-400'>Your Silent Payment address</p>
+          <p className='mt-2 font-mono break-all'>{address}</p>
+          <div className='mt-4'>
+            <Button
+              onClick={copyAddress}
+              label={copied ? 'Copied!' : 'Copy'}
+              disabled={!address}
+            />
+          </div>
+        </div>
       </div>
 
-      <div className='mt-4'>
-        <Button
-          label={copied ? 'Copied!' : 'Copy Address'}
-          onClick={copyAddress}
-          disabled={!address}
-        />
-      </div>
-
-      <Modal
-        title='Help'
-        open={showHelp}
-        onClose={() => setShowHelp(false)}
-      >
-        <div className='p-4'>
-          <p className='mb-4'>
-            Silent Payment addresses are a new type of Bitcoin address that provides enhanced privacy.
-            Each time you receive funds, a new unique address is generated while maintaining the same
-            public address for the sender.
+      <Modal title='About Silent Payments' open={showHelp} onClose={() => setShowHelp(false)}>
+        <div className='space-y-4'>
+          <p>
+            Silent Payments are a new type of Bitcoin address that provides enhanced privacy by making it impossible to link payments to your wallet.
           </p>
           <p>
-            This technology helps protect your privacy by making it harder to link your transactions
-            together on the blockchain.
+            Each time you receive a payment, a new address is generated automatically, but all payments are received to the same wallet.
+          </p>
+          <p>
+            You can share this address publicly - it's safe to post on social media or include in invoices.
           </p>
         </div>
       </Modal>
+
+      <NeedsPassword title='Show Address' onMnemonic={setMnemonic} />
     </div>
   )
 }

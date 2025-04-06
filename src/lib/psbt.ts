@@ -110,11 +110,9 @@ export async function buildPsbt(
       sighashType: 0,
       witnessUtxo: {
         amount: BigInt(coin.value),
-        script: bufferToUint8Array(Buffer.from(coin.script, 'hex')),
+        script: bufferToUint8Array(Buffer.from('5120' + coin.script, 'hex')),
       },
-      tapInternalKey: coin.silentPayment
-        ? bufferToUint8Array(Buffer.from(coin.script, 'hex').subarray(2))
-        : bufferToUint8Array(Buffer.from(wallet.publicKeys[wallet.network].spendPublicKey, 'hex').subarray(1)),
+      tapInternalKey: bufferToUint8Array(Buffer.from(coin.script, 'hex'))
     })
   }
 

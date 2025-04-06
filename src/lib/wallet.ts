@@ -1,3 +1,4 @@
+import * as ecc from '@bitcoinerlab/secp256k1'
 import { mnemonicToSeed } from '@scure/bip39'
 import { HDKey } from '@scure/bip32'
 import { Mnemonic, Satoshis, Utxo, PublicKeys } from './types'
@@ -51,8 +52,12 @@ export async function getSilentPaymentAddress(mnemonic: Mnemonic, network: Netwo
 }
 
 export async function getCoinPrivKey(coin: Utxo, network: NetworkName, mnemonic: Mnemonic): Promise<Buffer> {
+
   if (coin.silentPayment) {
-    return getSilentPaymentSpendPrivateKey(mnemonic, network)
+    const spendKeyWallet = await getSilentPaymentSpendPrivateKey(mnemonic, network)
+    const privKey = ecc.privateAdd(spendKeyWallet, Buffer.from(coin.silentPayment.tweak, 'hex'))
+    if (!privKey) throw new Error('Could not derive private key')
+    return Buffer.from(privKey)
   }
   throw new Error('Unsupported coin type')
 }

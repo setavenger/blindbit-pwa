@@ -23,7 +23,6 @@ export async function signPsbt(tx: Transaction, coins: Utxo[], network: NetworkN
   for (let i = 0; i < tx.inputsLength; i++) {
     const coin = coins[i]
     const privateKey = await getCoinPrivKey(coin, network, mnemonic)
-
     const msg = tx.preimageWitnessV1(i, prevoutScripts, 0x00, prevoutAmounts)
     const sig = ecc.signSchnorr(msg, privateKey, auxRand)
     tx.updateInput(i, {

@@ -4,18 +4,12 @@ import { wordlist } from '@scure/bip39/wordlists/english';
 import Button from '../../components/Button'
 import Title from '../../components/Title'
 import ButtonsOnBottom from '../../components/ButtonsOnBottom'
-import Columns from '../../components/Columns'
-import Word from '../../components/Word'
 import ErrorBox from '../../components/Error'
 import { NavigationContext, Pages } from '../../providers/navigation'
 import Content from '../../components/Content'
 import { FlowContext } from '../../providers/flow'
 import Container from '../../components/Container'
-import Input from '../../components/Input'
-import Select from '../../components/Select'
-import { defaultNetwork } from '../../lib/constants'
-import { NetworkName } from '../../lib/network'
-import Option from '../../components/Option'
+import Textarea from '../../components/Textarea'
 
 enum ButtonLabel {
   Incomplete = 'Incomplete mnemonic',
@@ -33,17 +27,17 @@ export default function InitOld() {
   const { setInitInfo } = useContext(FlowContext)
 
   const [label, setLabel] = useState(ButtonLabel.Incomplete)
-  const [passphrase, setPassphrase] = useState(Array.from({ length: 12 }, () => ''))
+  const [mnemonic, setMnemonic] = useState('')
   const [birthHeight, setBirthHeight] = useState(-1)
-  const [network, setNetwork] = useState(defaultNetwork)
   const [step, setStep] = useState(Step.Passphrase)
 
   useEffect(() => {
-    const completed = [...passphrase].filter((a) => a)?.length === 12
-    if (!completed) return setLabel(ButtonLabel.Incomplete)
-    const valid = validateMnemonic(passphrase.join(' '), wordlist)
+    const words = mnemonic.trim().split(/\s+/)
+    const wordCount = words.length
+    if (wordCount !== 24) return setLabel(ButtonLabel.Incomplete)
+    const valid = validateMnemonic(words.join(' '), wordlist)
     setLabel(valid ? ButtonLabel.Ok : ButtonLabel.Invalid)
-  }, [passphrase])
+  }, [mnemonic])
 
   const handleBirthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target
@@ -53,15 +47,8 @@ export default function InitOld() {
     setLabel(ButtonLabel.Ok)
   }
 
-  const handleChange = (e: any, i: number) => {
-    const { value } = e.target
-    if (i === 0 && value.split(/\s+/).length === 12) {
-      setPassphrase(value.split(/\s+/))
-    } else {
-      const clone = [...passphrase]
-      clone[i] = value
-      setPassphrase(clone)
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMnemonic(e.target.value)
   }
 
   const handleCancel = () => navigate(Pages.Init)
@@ -72,8 +59,7 @@ export default function InitOld() {
       return
     }
 
-    const mnemonic = passphrase.join(' ')
-    setInitInfo({ mnemonic, restoreFrom: birthHeight, network: network as NetworkName })
+    setInitInfo({ mnemonic: mnemonic.trim(), restoreFrom: birthHeight })
     navigate(Pages.InitPassword)
   }
 
@@ -82,26 +68,15 @@ export default function InitOld() {
   return (
     <Container>
       <Content>
-        <Title text='Restore wallet' subtext='Insert your secret words' />
-        {step === Step.Passphrase ? (
-          <div className='flex flex-col gap-2 align-middle justify-center'>
-            <ErrorBox error={label === ButtonLabel.Invalid} text={label} />
-            <Columns>
-              {[...passphrase].map((word, i) => (
-                <Word key={'word' + i.toString()} left={i + 1} onChange={(e: any) => handleChange(e, i)} text={word} />
-              ))}
-            </Columns>
-          </div>
-        ) : (
-          <div className='flex flex-col gap-2'>
-            <Select label='Network' value={network} onChange={(e) => setNetwork(e.target.value)}>
-              <Option value={NetworkName.Mainnet}>mainnet</Option>
-              <Option value={NetworkName.Testnet}>testnet</Option>
-              <Option value={NetworkName.Regtest}>regtest</Option>
-            </Select>
-            <Input label='Birth block height' onChange={handleBirthChange} type='number' />
-          </div>
-        )}
+        <Title text='Restore wallet' subtext='Enter your 24-word mnemonic' />
+        <p className='p-2' />
+        <Textarea
+          label='Mnemonic'
+          value={mnemonic}
+          onChange={handleChange}
+        />
+        <p className='p-2' />
+        <ErrorBox error={label === ButtonLabel.Invalid} text='Invalid mnemonic' />
       </Content>
       <ButtonsOnBottom>
         <Button onClick={handleProceed} label={label} disabled={disabled} />
