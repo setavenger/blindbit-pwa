@@ -5,11 +5,12 @@ import { NetworkName } from '../lib/network'
 import { Mnemonic, Transactions, Utxos, PublicKeys, Transaction, Utxo } from '../lib/types'
 import { ExplorerName, getExplorerNames, getRestApiExplorerURL } from '../lib/explorers'
 import { defaultExplorer, defaultNetwork } from '../lib/constants'
-import { getP2TRAddress, getSilentPaymentScanPrivateKey, isInitialized } from '../lib/wallet'
+import { getSilentPaymentScanPrivateKey, isInitialized } from '../lib/wallet'
 import { SilentiumAPI } from '../lib/silentpayment/silentium/api'
 import { EsploraChainSource } from '../lib/chainsource'
 import { Updater, applyUpdate } from '../lib/updater'
 import { notify } from '../components/Toast'
+import { NWCService } from '../lib/nwc'
 
 export interface Wallet {
   explorer: ExplorerName
@@ -20,6 +21,7 @@ export interface Wallet {
   publicKeys: PublicKeys
   scannedBlockHeight: Record<NetworkName, number>
   silentiumURL: Record<NetworkName, string>
+  nwcURL: Record<NetworkName, string>
 }
 
 const defaultWallet: Wallet = {
@@ -29,6 +31,11 @@ const defaultWallet: Wallet = {
     [NetworkName.Mainnet]: 'https://bitcoin.silentium.dev/v1',
     [NetworkName.Testnet]: 'https://testnet.silentium.dev/v1',
     [NetworkName.Regtest]: 'http://localhost:9000/v1',
+  },
+  nwcURL: {
+    [NetworkName.Mainnet]: '',
+    [NetworkName.Testnet]: '',
+    [NetworkName.Regtest]: '',
   },
   mempoolTransactions: {
     [NetworkName.Mainnet]: [],
@@ -46,9 +53,9 @@ const defaultWallet: Wallet = {
     [NetworkName.Testnet]: [],
   },
   publicKeys: {
-    [NetworkName.Mainnet]: { p2trPublicKey: '', scanPublicKey: '', spendPublicKey: '' },
-    [NetworkName.Regtest]: { p2trPublicKey: '', scanPublicKey: '', spendPublicKey: '' },
-    [NetworkName.Testnet]: { p2trPublicKey: '', scanPublicKey: '', spendPublicKey: '' },
+    [NetworkName.Mainnet]: { scanPublicKey: '', spendPublicKey: '' },
+    [NetworkName.Regtest]: { scanPublicKey: '', spendPublicKey: '' },
+    [NetworkName.Testnet]: { scanPublicKey: '', spendPublicKey: '' },
   },
   scannedBlockHeight: {
     [NetworkName.Mainnet]: -1,
@@ -60,6 +67,7 @@ const defaultWallet: Wallet = {
 interface WalletContextProps {
   changeExplorer: (e: ExplorerName) => void
   changeSilentiumURL: (url: string) => void
+  changeNWCURL: (url: string) => void
   changeNetwork: (n: NetworkName) => void
   reloadWallet: (mnemonic: Mnemonic, wallet: Wallet) => void
   resetWallet: () => void
@@ -73,6 +81,7 @@ interface WalletContextProps {
 export const WalletContext = createContext<WalletContextProps>({
   changeExplorer: () => {},
   changeSilentiumURL: () => {},
+  changeNWCURL: () => {},
   changeNetwork: () => {},
   reloadWallet: () => {},
   pushMempoolTransaction: () => {},
@@ -140,54 +149,45 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     setWallet(clone)
   }
 
+  const changeNWCURL = async (url: string) => {
+    const clone = {
+      ...wallet,
+      nwcURL: {
+        ...wallet.nwcURL,
+        [wallet.network]: url,
+      },
+    }
+    setWallet(clone)
+  }
+
   const reloadWallet = async (mnemonic: string, wallet: Wallet) => {
     if (!mnemonic || scanning) return
     try {
       setScanning(true)
       setScanningProgress(0)
 
-      const silentiumAPI = new SilentiumAPI(wallet.silentiumURL[wallet.network])
-      const chainTip = await silentiumAPI.getChainTipHeight()
-      if (chainTip <= wallet.scannedBlockHeight[wallet.network]) {
-        console.log('No new blocks to scan')
-        return
-      }
-
-      const explorer = new EsploraChainSource(getRestApiExplorerURL(wallet))
       const scanPrivKey = await getSilentPaymentScanPrivateKey(mnemonic, wallet.network)
-      const spendPubKey = Buffer.from(wallet.publicKeys[wallet.network].spendPublicKey, 'hex')
-      const p2trScript = Buffer.from(getP2TRAddress(wallet).script)
 
-      const updater = new Updater(explorer, scanPrivKey, spendPubKey, p2trScript)
+      const nwc = new NWCService(scanPrivKey.toString('hex'), wallet.nwcURL[wallet.network])
+      await nwc.enable()
 
-      const totalBlocks = chainTip - wallet.scannedBlockHeight[wallet.network]
-      const percentPerBlock = 100 / totalBlocks
-      let progress = 0
+      const info = await nwc.getInfo()
+      const utxos = await nwc.getUtxos()
 
-      for (let i = wallet.scannedBlockHeight[wallet.network] + 1; i <= chainTip; i++) {
-        try {
-          const blockData = await silentiumAPI.getBlockData(i)
-
-          const updateResult = await updater.updateHeight(
-            blockData,
-            wallet.utxos[wallet.network] ?? [],
-            wallet.mempoolTransactions[wallet.network],
-          )
-          wallet = {
-            ...applyUpdate(wallet, updateResult),
-            scannedBlockHeight: { ...wallet.scannedBlockHeight, [wallet.network]: i },
-          }
-          setWallet(wallet)
-        } catch (e) {
-          notify(extractErrorMessage(e))
-          console.error(e)
-          continue
-        } finally {
-          progress += percentPerBlock
-          progress = Math.min(progress, 100)
-          setScanningProgress(Math.round(progress))
+      const updatedWallet = {
+        ...wallet,
+        utxos: {
+          ...wallet.utxos,
+          [wallet.network]: utxos
+        },
+        scannedBlockHeight: {
+          ...wallet.scannedBlockHeight,
+          [wallet.network]: info.blockHeight
         }
       }
+
+      setWallet(updatedWallet)
+      setScanningProgress(100)
     } catch (e) {
       console.error(e)
       notify(extractErrorMessage(e))
@@ -262,6 +262,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       value={{
         changeExplorer,
         changeSilentiumURL,
+        changeNWCURL,
         changeNetwork,
         reloadWallet,
         resetWallet,

@@ -1,7 +1,7 @@
 import { BasicFilter } from 'bip158'
 import { ChainSource } from './chainsource'
 import { BIP352BlockData } from './silentpayment/silentium/api'
-import { Transaction, Utxo } from './types'
+import { Transaction, Utxo, Label } from './types'
 import { scan, computeScript, computeTweak } from '../lib/silentpayment/scanning'
 import { Wallet } from '../providers/wallet'
 
@@ -102,6 +102,15 @@ export class Updater {
             vout,
             script: output.script.toString('hex'),
             value: output.value,
+            silentPayment: {
+              tweak: '',
+              label: {
+                pub_key: '',
+                tweak: '',
+                address: '',
+                m: 0,
+              },
+            },
           })
           txInfo.amount += output.value
           isWalletTx = true
@@ -120,6 +129,12 @@ export class Updater {
             value: output.value,
             silentPayment: {
               tweak: computeTweak(this.scanPrivateKey, h2b(scalar), 0).toString('hex'),
+              label: {
+                pub_key: this.spendPublicKey.toString('hex'),
+                tweak: computeTweak(this.scanPrivateKey, h2b(scalar), 0).toString('hex'),
+                address: '',
+                m: 0,
+              },
             },
           })
           txInfo.amount += output.value
@@ -138,6 +153,12 @@ export class Updater {
                 value: tx.outs[i].value,
                 silentPayment: {
                   tweak: computeTweak(this.scanPrivateKey, h2b(scalar), nextCounter).toString('hex'),
+                  label: {
+                    pub_key: this.spendPublicKey.toString('hex'),
+                    tweak: computeTweak(this.scanPrivateKey, h2b(scalar), nextCounter).toString('hex'),
+                    address: '',
+                    m: nextCounter,
+                  },
                 },
               })
               isWalletTx = true

@@ -3,10 +3,14 @@ import { Wallet } from '../providers/wallet'
 import { Utxo } from './types'
 import { CoinsSelected } from './coinSelection'
 import { getNetwork } from './network'
-import { getCoinPrivKey, getP2TRAddress, getSilentPaymentAddress } from './wallet'
+import { getCoinPrivKey } from './wallet'
 import * as silentpay from './silentpayment/core'
 
 export type UtxoWithoutId = Pick<Utxo, 'script' | 'silentPayment' | 'value' | 'vout'>
+
+function bufferToUint8Array(buffer: Buffer): Uint8Array {
+  return new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength)
+}
 
 export async function buildPsbt(
   coinSelection: CoinsSelected, 
@@ -19,7 +23,7 @@ export async function buildPsbt(
 
   const outputs = []
   const silentPayRecipients: silentpay.RecipientAddress[] = []
-  const walletOutputs: UtxoWithoutId [] = []
+  const walletOutputs: UtxoWithoutId[] = []
 
   if (silentpay.isSilentPaymentAddress(destinationAddress, network)) {
     silentPayRecipients.push({
@@ -31,21 +35,14 @@ export async function buildPsbt(
       address: destinationAddress,
       value: amount,
     })
-
-    const walletP2TR = getP2TRAddress(wallet)
-
-    if (walletP2TR.address === destinationAddress) {
-      walletOutputs.push({
-        script: Buffer.from(walletP2TR.script).toString('hex'),
-        value: amount,
-        vout: 0,
-      })
-    }
-
   }
 
   if (changeAmount) {
-    const changeAddress = getSilentPaymentAddress(wallet)
+    const changeAddress = silentpay.encodeSilentPaymentAddress(
+      bufferToUint8Array(Buffer.from(wallet.publicKeys[wallet.network].scanPublicKey, 'hex')),
+      bufferToUint8Array(Buffer.from(wallet.publicKeys[wallet.network].spendPublicKey, 'hex')),
+      network
+    )
     silentPayRecipients.push({
       address: changeAddress,
       amount: changeAmount,
@@ -64,14 +61,20 @@ export async function buildPsbt(
 
   const [silentPayOutputs, tweaks] = silentpay.createOutputs(inputPrivKeys, smallestOutpointCoin, silentPayRecipients, network)
 
-  if (getSilentPaymentAddress(wallet) === destinationAddress) {
+  if (silentpay.isSilentPaymentAddress(destinationAddress, network)) {
     walletOutputs.push({
       script: silentPayOutputs[0].script.toString('hex'),
       value: amount,
       vout: 0,
       silentPayment: {
         tweak: tweaks[0],
-      }
+        label: {
+          pub_key: wallet.publicKeys[wallet.network].spendPublicKey,
+          tweak: tweaks[0],
+          address: destinationAddress,
+          m: 0,
+        },
+      },
     })
   }
 
@@ -82,7 +85,17 @@ export async function buildPsbt(
       vout: 1,
       silentPayment: {
         tweak: tweaks[tweaks.length-1],
-      }
+        label: {
+          pub_key: wallet.publicKeys[wallet.network].spendPublicKey,
+          tweak: tweaks[tweaks.length-1],
+          address: silentpay.encodeSilentPaymentAddress(
+            bufferToUint8Array(Buffer.from(wallet.publicKeys[wallet.network].scanPublicKey, 'hex')),
+            bufferToUint8Array(Buffer.from(wallet.publicKeys[wallet.network].spendPublicKey, 'hex')),
+            network
+          ),
+          m: 0,
+        },
+      },
     })
   }
 
@@ -97,11 +110,11 @@ export async function buildPsbt(
       sighashType: 0,
       witnessUtxo: {
         amount: BigInt(coin.value),
-        script: Buffer.from(coin.script, 'hex'),
+        script: bufferToUint8Array(Buffer.from(coin.script, 'hex')),
       },
       tapInternalKey: coin.silentPayment
-        ? Buffer.from(coin.script, 'hex').subarray(2)
-        : Buffer.from(wallet.publicKeys[wallet.network].p2trPublicKey, 'hex').subarray(1),
+        ? bufferToUint8Array(Buffer.from(coin.script, 'hex').subarray(2))
+        : bufferToUint8Array(Buffer.from(wallet.publicKeys[wallet.network].spendPublicKey, 'hex').subarray(1)),
     })
   }
 

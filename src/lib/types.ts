@@ -1,7 +1,5 @@
-import { NetworkName } from './network'
-
+export type NetworkName = 'mainnet' | 'testnet' | 'regtest'
 export type Mnemonic = string
-export type Password = string
 export type Satoshis = number
 
 export type DecodedAddress = { script: Buffer }
@@ -9,28 +7,33 @@ export type DecodedAddress = { script: Buffer }
 export type NextIndex = number
 
 export type Transaction = {
-  amount: number
   txid: string
+  amount: number
   unixdate: number
 }
+
 export type Transactions = Record<NetworkName, Transaction[]>
+
+export type utxoState = 'unconfirmed' | 'unspent' | 'spent' | 'unconfirmed_spent'
+
+export interface Label {
+  pub_key: string
+  tweak: string
+  address: string
+  m: number
+}
 
 export type Utxo = {
   txid: string
   vout: number
   value: number
   script: string
-  silentPayment?: {
+  silentPayment: {
     tweak: string
+    label: Label | null
   }
 }
 
 export type Utxos = Record<NetworkName, Utxo[]>
 
-export type Keys = {
-  scanPublicKey: string
-  spendPublicKey: string
-  p2trPublicKey: string
-}
-
-export type PublicKeys = Record<NetworkName, Keys>
+export type PublicKeys = Record<NetworkName, { scanPublicKey: string; spendPublicKey: string }>

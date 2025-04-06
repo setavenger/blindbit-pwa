@@ -13,11 +13,12 @@ import Option from '../../components/Option'
 
 export default function Explorer() {
   const { toggleShowConfig } = useContext(ConfigContext)
-  const { changeExplorer, changeSilentiumURL, wallet } = useContext(WalletContext)
+  const { changeExplorer, changeSilentiumURL, changeNWCURL, wallet } = useContext(WalletContext)
 
   const explorerNames = getExplorerNames(wallet.network)
   const [explorer, setExplorer] = useState(explorerNames.includes(wallet.explorer) ? wallet.explorer : explorerNames[0])
   const [silentiumURL, setSilentiumURL] = useState<any>()
+  const [nwcURL, setNWCURL] = useState<any>()
 
   const handleChangeExplorer = (e: any) => {
     setExplorer(e.target.value)
@@ -27,12 +28,16 @@ export default function Explorer() {
     setSilentiumURL(e.target.value)
   }
 
+  const handleChangeNWCURL = (e: any) => {
+    setNWCURL(e.target.value)
+  }
+
   const save = () => {
     if (explorer) changeExplorer(explorer)
     if (silentiumURL) changeSilentiumURL(silentiumURL)
+    if (nwcURL) changeNWCURL(nwcURL)
     toggleShowConfig()
   }
-
 
   return (
     <Container>
@@ -45,6 +50,8 @@ export default function Explorer() {
         </Select>
         <br />
         <Input label='Silentium' placeholder={wallet.silentiumURL[wallet.network]} onChange={handleChangeSilentiumURL} type="text" />
+        <br />
+        <Input label='NWC' placeholder={wallet.nwcURL[wallet.network]} onChange={handleChangeNWCURL} type="text" />
       </Content>
       <ButtonsOnBottom>
         <Button onClick={save} label='Save' />
