@@ -14,12 +14,12 @@ export default function About() {
         <Title text='About' />
         <div className='flex flex-col gap-5 justify-center'>
           <p>
-            <a className='text-primary cursor-pointer' href='https://github.com/louisinger/silentium'>
-              Silentium v0.1.0
+            <a className='text-primary cursor-pointer' href='https://github.com/setavenger/blindbit-silentium'>
+              BlindBit PWA 
             </a>{' '}
             by{' '}
-            <a className='text-primary cursor-pointer' href='https://github.com/louisinger'>
-              louisinger
+            <a className='text-primary cursor-pointer' href='https://github.com/setavenger'>
+              setavenger
             </a>
           </p>
           <p>

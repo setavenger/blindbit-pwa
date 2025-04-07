@@ -1,6 +1,13 @@
-# Silentium wallet
+# BlindBit PWA wallet
 
-Self-custodial & privacy focused wallet for sending and receiving Silent payments with [Silentiumd](https://github.com/louisinger/silentiumd).
+I forked this from [Silentium](github.com/louisinger/silentium) and made it nostr wallet connect (NWC) compatible with [BlindBit Scan](github.com/setavenger/blindbit-scan). I forked this to give users another option next to [BlindBit Spend](github.com/setavenger/blindbit-spend) which is a heavier react native. Now that the scanning server implements NWC and there are no heavy computations happening on the mobile client a PWA is no problem anymore. 
+
+Some of the modifications I made:
+- Added a BlindBit adapted NWC connection to a BlindBit Scan instance (change in settings -> explore, might move that to network)
+- Removed all scanning - this mobile client only receives updates from BlindBit Scan
+- Removed standard taproot receiving to prevent mixing of funds (avoid privacy footguns for users)
+
+Massiv cudos to Louis Singer, it took very little time to make the necessary adaptations to his [prototype](https://github.com/louisinger/silentium) I forked from.
 
 > **This is an experimental project acting as a proof of concept for Silent Payments light wallets. Use at your own risk.**
 
@@ -61,7 +68,7 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 ## Buy me a coffee
 
-`sp1qq0ze7c565fg6nlgs5u0uthc6vt56pxajy8cn0vjew4nmttk80wm7gqmzyqqs92glsms2e7482966zs5u83wecz8yjn8ntaejh7y7lgr96s22p7hu`
+`sp1qqwgst7mthsl46hkcek6ets58rfunr4qaxpchuegs09m6uy3tm4xysqmdf6xr9rh68stzzhshjt6z7288tc7eqts65ls4sg2dg6aexlx595f5wa7u`
 
 ## License
 

@@ -18,7 +18,7 @@ export interface Config {
 }
 
 const defaultConfig: Config = {
-  theme: Themes.Dark,
+  theme: Themes.Light,
   unit: Unit.BTC,
 }
 
@@ -54,8 +54,11 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const updateTheme = ({ theme }: Config) => {
-    if (theme === Themes.Dark) document.body.classList.add('dark')
-    else document.body.classList.remove('dark')
+    if (theme === Themes.Dark) {
+      document.body.classList.add('dark')
+    } else {
+      document.body.classList.remove('dark')
+    }
   }
 
   const resetConfig = () => {
@@ -64,11 +67,21 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
   }
 
   useEffect(() => {
+    // Set initial theme
+    document.body.classList.remove('dark')
+    
     if (!loading) return
-    const config = readConfigFromStorage() ?? { ...defaultConfig }
-    updateConfig(config)
+    
+    // Load config from storage
+    const storedConfig = readConfigFromStorage()
+    if (storedConfig) {
+      updateConfig(storedConfig)
+    } else {
+      // Only update with default config if no stored config exists
+      updateConfig(defaultConfig)
+    }
+    
     setLoading(false)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading])
 
   return (

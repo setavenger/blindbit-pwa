@@ -25,10 +25,10 @@ export default function Button({ disabled, icon, label, onClick, secondary, prog
       <button
         className={classNames(
           'mt-0 font-semibold rounded-md w-full disabled:opacity-40 disabled:border-none border hover:shadow-sm',
-          { 'bg-gray dark:bg-gray-800 dark:text-gray-100 border-gray-200 dark:border-gray-700': secondary },
-          { 'bg-gray-900 text-primary border-gray-200 dark:border-primary': !secondary },
+          { 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700': secondary },
+          { 'bg-primary text-white border-primary hover:bg-primary/90 dark:hover:bg-primary/80': !secondary },
           { 'cursor-not-allowed': disabled },
-          { 'h-12 w-12 border-none dark:text-gray-100': iconBtn }
+          { 'h-12 w-12 border-none text-gray-900 dark:text-gray-100': iconBtn }
         )}
         disabled={disabled}
         onClick={onClick}
