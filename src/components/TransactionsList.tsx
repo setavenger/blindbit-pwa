@@ -19,8 +19,8 @@ const TransactionLine = ({ data, wallet, mempool }: { data: Transaction; wallet:
       )}
       onClick={() => openInNewTab(data.txid, wallet)}
     >
-      <p>{amount}</p>
-      <p className='mr-2'>{date}</p>
+      <p className='text-gray-900 dark:text-gray-100'>{amount}</p>
+      <p className='mr-2 text-gray-900 dark:text-gray-100'>{date}</p>
     </div>
   )
 }

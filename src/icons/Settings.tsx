@@ -1,6 +1,6 @@
 export default function SettingsIcon() {
   return (
-    <svg viewBox='0 0 16 16' className='w-8 h-8 text-primary' xmlns='http://www.w3.org/2000/svg'>
+    <svg viewBox='0 0 16 16' className='w-8 h-8' xmlns='http://www.w3.org/2000/svg'>
       <path
         fill='currentcolor'
         fillRule='evenodd'

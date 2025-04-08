@@ -34,7 +34,7 @@ export default function Balance({ value }: BalanceProps) {
 
   return (
     <div className='cursor-pointer' onClick={handleClick}>
-      <Title text={text} subtext={subtext} />
+      <Title text={text} subtext={subtext} className='text-gray-900 dark:text-gray-100' />
     </div>
   )
 }

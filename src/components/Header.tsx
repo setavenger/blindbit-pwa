@@ -28,12 +28,15 @@ export default function Header() {
       <button
         onClick={handleClick}
         aria-label='Back to homepage'
-        className={(reloading ? 'animate-pulse ' : '') + 'p-2 rounded-full bg-gray-100 dark:bg-gray-800'}
+        className={(reloading ? 'animate-pulse ' : '') + 'p-2 rounded-full bg-gray-100 dark:bg-gray-700'}
       >
         <SilentIcon />
       </button>
       {wallet.network === NetworkName.Testnet ? <Testnet /> : null}
-      <button onClick={toggleShowConfig} className='p-2 rounded-full bg-gray-100 dark:bg-gray-800'>
+      <button 
+      onClick={toggleShowConfig} 
+      className='p-2 rounded-full bg-gray-100 dark:bg-gray-700'
+      >
         <SettingsIcon />
       </button>
       <Toaster />

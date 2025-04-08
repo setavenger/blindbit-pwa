@@ -21,7 +21,7 @@ export default function Header({ hideBack, setOption }: any) {
           <BackIcon />
         </button>
       )}
-      <button onClick={toggleShowConfig} className='p-2 rounded-full text-primary bg-gray-800 dark:bg-gray-100'>
+      <button onClick={toggleShowConfig} className='p-2 rounded-full text-primary bg-gray-400 dark:bg-gray-100'>
         <SettingsBlackIcon />
       </button>
     </header>

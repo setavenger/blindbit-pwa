@@ -18,7 +18,7 @@ export interface Config {
 }
 
 const defaultConfig: Config = {
-  theme: Themes.Light,
+  theme: Themes.Dark,
   unit: Unit.BTC,
 }
 
@@ -67,20 +67,9 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
   }
 
   useEffect(() => {
-    // Set initial theme
-    document.body.classList.remove('dark')
-    
     if (!loading) return
-    
-    // Load config from storage
-    const storedConfig = readConfigFromStorage()
-    if (storedConfig) {
-      updateConfig(storedConfig)
-    } else {
-      // Only update with default config if no stored config exists
-      updateConfig(defaultConfig)
-    }
-    
+    const config = readConfigFromStorage() ?? { ...defaultConfig }
+    updateConfig(config)
     setLoading(false)
   }, [loading])
 
