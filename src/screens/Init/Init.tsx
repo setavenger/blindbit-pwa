@@ -11,7 +11,7 @@ export default function Init() {
   return (
     <Container>
       <div className='mt-24 max-w-64 md:max-w-full mx-auto'>
-        <Title text='Silentium app' subtext='silent payment wallet' />
+        <Title text='BlindBit PWA' subtext='silent payment wallet' />
       </div>
       <ButtonsOnBottom>
         <Button onClick={() => navigate(Pages.InitNew)} label='New wallet' />

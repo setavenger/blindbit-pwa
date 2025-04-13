@@ -1,18 +1,14 @@
 import { useContext, useEffect, useState } from 'react'
-import { NavigationContext } from '../../../providers/navigation'
 import Button from '../../../components/Button'
 import { WalletContext } from '../../../providers/wallet'
 import { getSilentPaymentAddress } from '../../../lib/wallet'
 import QrCode from '../../../components/QrCode'
 import { MdOutlineQuestionMark } from 'react-icons/md'
 import Modal from '../../../components/Modal'
-import { NetworkName } from '../../../lib/network'
 import { Mnemonic } from '../../../lib/types'
-import { useStorage } from '../../../lib/storage'
 import NeedsPassword from '../../../components/NeedsPassword'
 
 export default function Address() {
-  const { navigate } = useContext(NavigationContext)
   const { wallet } = useContext(WalletContext)
   const [mnemonic, setMnemonic] = useState<Mnemonic>('')
 

@@ -1,4 +1,4 @@
-package dev.silentium.app;
+package pwa.blindbit.dev;
 
 import com.getcapacitor.BridgeActivity;
 

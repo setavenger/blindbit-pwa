@@ -5,7 +5,7 @@ import { WalletContext } from '../providers/wallet'
 import NeedsPassword from './NeedsPassword'
 
 export default function ScanButton() {
-  const { wallet, reloadWallet, scanning, scanningProgress } = useContext(WalletContext)
+  const { wallet, reloadWallet, scanning } = useContext(WalletContext)
 
   const [askPassword, setAskPassword] = useState(false)
   const [mnemonic, setMnemonic] = useState<string>()
@@ -23,8 +23,7 @@ export default function ScanButton() {
   return (
     <>
       {askPassword ? <NeedsPassword title='Sync' onMnemonic={handleMnemonicUnlock} onClose={() => setAskPassword(false)} /> : null}
-      {scanning ? <p className='animate-bounce' >{wallet.scannedBlockHeight[wallet.network]} ({scanningProgress}%)</p> : null}
-      <Button progress={scanningProgress} icon={<SearchIcon />} label='Sync' onClick={() => handleScan()} disabled={scanning} />
-    </>
+      {scanning ? <p className='animate-bounce' > Syncing with Scan Server</p> : null}
+      <Button icon={<SearchIcon />} label='Sync' onClick={() => handleScan()} disabled={scanning} /> </>
   )
 }

@@ -6,7 +6,6 @@ import { Mnemonic, Transactions, Utxos, PublicKeys, Transaction, Utxo } from '..
 import { ExplorerName, getExplorerNames, getRestApiExplorerURL } from '../lib/explorers'
 import { defaultExplorer, defaultNetwork } from '../lib/constants'
 import { getSilentPaymentScanPrivateKey, isInitialized } from '../lib/wallet'
-import { SilentiumAPI } from '../lib/silentpayment/silentium/api'
 import { EsploraChainSource } from '../lib/chainsource'
 import { Updater, applyUpdate } from '../lib/updater'
 import { notify } from '../components/Toast'
@@ -20,23 +19,13 @@ export interface Wallet {
   utxos: Utxos
   publicKeys: PublicKeys
   scannedBlockHeight: Record<NetworkName, number>
-  silentiumURL: Record<NetworkName, string>
-  nwcURL: Record<NetworkName, string>
+  nwcURL: string
 }
 
 const defaultWallet: Wallet = {
   explorer: defaultExplorer,
   network: defaultNetwork,
-  silentiumURL: {
-    [NetworkName.Mainnet]: 'https://bitcoin.silentium.dev/v1',
-    [NetworkName.Testnet]: 'https://testnet.silentium.dev/v1',
-    [NetworkName.Regtest]: 'http://localhost:9000/v1',
-  },
-  nwcURL: {
-    [NetworkName.Mainnet]: '',
-    [NetworkName.Testnet]: '',
-    [NetworkName.Regtest]: '',
-  },
+  nwcURL: '',
   mempoolTransactions: {
     [NetworkName.Mainnet]: [],
     [NetworkName.Regtest]: [],
@@ -66,7 +55,6 @@ const defaultWallet: Wallet = {
 
 interface WalletContextProps {
   changeExplorer: (e: ExplorerName) => void
-  changeSilentiumURL: (url: string) => void
   changeNWCURL: (url: string) => void
   changeNetwork: (n: NetworkName) => void
   reloadWallet: (mnemonic: Mnemonic, wallet: Wallet) => void
@@ -75,12 +63,10 @@ interface WalletContextProps {
   pushMempoolTransaction: (spentCoins: { txid: string; vout: number }[], newUtxos: Utxo[], txid: string) => void
   wallet: Wallet
   scanning: boolean
-  scanningProgress?: number
 }
 
 export const WalletContext = createContext<WalletContextProps>({
   changeExplorer: () => {},
-  changeSilentiumURL: () => {},
   changeNWCURL: () => {},
   changeNetwork: () => {},
   reloadWallet: () => {},
@@ -89,7 +75,6 @@ export const WalletContext = createContext<WalletContextProps>({
   initWallet: () => Promise.resolve(defaultWallet),
   wallet: defaultWallet,
   scanning: false,
-  scanningProgress: undefined,
 })
 
 export const WalletProvider = ({ children }: { children: ReactNode }) => {
@@ -98,19 +83,6 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   const [scanning, setScanning] = useState(false)
   const [scanningProgress, setScanningProgress] = useState<number>()
   const [wallet, setWallet] = useStorage<Wallet>('wallet', defaultWallet)
-
-  // ensures that the testnet URL is set to the default value if it is empty
-  useEffect(() => {
-    if (wallet.silentiumURL[NetworkName.Testnet] === '') {
-      setWallet({
-        ...wallet,
-        silentiumURL: {
-          ...wallet.silentiumURL,
-          [NetworkName.Testnet]: defaultWallet.silentiumURL[NetworkName.Testnet],
-        },
-      })
-    }
-  }, [wallet])
 
   const changeExplorer = async (explorer: ExplorerName) => {
     const clone = { ...wallet, explorer }
@@ -138,37 +110,27 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     setWallet(clone)
   }
 
-  const changeSilentiumURL = async (url: string) => {
-    const clone = {
-      ...wallet,
-      silentiumURL: {
-        ...wallet.silentiumURL,
-        [wallet.network]: url,
-      },
-    }
-    setWallet(clone)
-  }
-
   const changeNWCURL = async (url: string) => {
     const clone = {
       ...wallet,
-      nwcURL: {
-        ...wallet.nwcURL,
-        [wallet.network]: url,
-      },
+      nwcURL: url
     }
     setWallet(clone)
   }
 
   const reloadWallet = async (mnemonic: string, wallet: Wallet) => {
     if (!mnemonic || scanning) return
+    if (wallet.nwcURL === '') {
+      notify('set nostr wallet connect in explorer settings')
+      return
+    }
     try {
       setScanning(true)
       setScanningProgress(0)
 
       const scanPrivKey = await getSilentPaymentScanPrivateKey(mnemonic, wallet.network)
 
-      const nwc = new NWCService(scanPrivKey.toString('hex'), wallet.nwcURL[wallet.network])
+      const nwc = new NWCService(scanPrivKey.toString('hex'), wallet.nwcURL)
       await nwc.enable()
 
       const info = await nwc.getInfo()
@@ -187,7 +149,6 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       }
 
       setWallet(updatedWallet)
-      setScanningProgress(100)
     } catch (e) {
       console.error(e)
       notify(extractErrorMessage(e))
@@ -261,7 +222,6 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     <WalletContext.Provider
       value={{
         changeExplorer,
-        changeSilentiumURL,
         changeNWCURL,
         changeNetwork,
         reloadWallet,
@@ -269,7 +229,6 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
         wallet,
         initWallet,
         scanning,
-        scanningProgress,
         pushMempoolTransaction,
       }}
     >

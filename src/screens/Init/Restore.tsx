@@ -34,7 +34,7 @@ export default function InitOld() {
   useEffect(() => {
     const words = mnemonic.trim().split(/\s+/)
     const wordCount = words.length
-    if (wordCount !== 24) return setLabel(ButtonLabel.Incomplete)
+    if (wordCount !== 24 && wordCount !== 12) return setLabel(ButtonLabel.Incomplete)
     const valid = validateMnemonic(words.join(' '), wordlist)
     setLabel(valid ? ButtonLabel.Ok : ButtonLabel.Invalid)
   }, [mnemonic])

@@ -1,4 +1,5 @@
 import { ReactElement, useContext, useState } from 'react'
+import BlindBit from './BlindBit'
 import Explorer from './Explorer'
 import Network from './Network'
 import Header from './Header'
@@ -25,6 +26,7 @@ enum Options {
   Menu = 'menu',
   About = 'about',
   Backup = 'backup',
+  BlindBit = 'blindbit',
   Explorer = 'explorer',
   Network = 'network',
   Notifications = 'notifications',
@@ -54,6 +56,10 @@ export default function Settings() {
     {
       icon: <BackupIcon />,
       option: Options.Backup,
+    },
+    {
+      icon: <ExplorerIcon />,
+      option: Options.BlindBit,
     },
     {
       icon: <ExplorerIcon />,
@@ -112,6 +118,7 @@ export default function Settings() {
         )}
         {option === Options.About && <About />}
         {option === Options.Backup && <Backup />}
+        {option === Options.BlindBit && <BlindBit />}
         {option === Options.Explorer && <Explorer />}
         {option === Options.Network && <Network />}
         {option === Options.Password && <Password />}

@@ -37,3 +37,8 @@ export type Utxo = {
 export type Utxos = Record<NetworkName, Utxo[]>
 
 export type PublicKeys = Record<NetworkName, { scanPublicKey: string; spendPublicKey: string }>
+
+export type ScanOnlyKeySet = {
+  scan_priv_key: string
+  spend_pub_key: string
+}

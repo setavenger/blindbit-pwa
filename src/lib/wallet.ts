@@ -1,7 +1,7 @@
 import * as ecc from '@bitcoinerlab/secp256k1'
 import { mnemonicToSeed } from '@scure/bip39'
 import { HDKey } from '@scure/bip32'
-import { Mnemonic, Satoshis, Utxo, PublicKeys } from './types'
+import { Mnemonic, Satoshis, Utxo, PublicKeys, ScanOnlyKeySet } from './types'
 import { NetworkName, getNetwork } from './network'
 import { Wallet } from '../providers/wallet'
 import { deriveBIP352Keys } from './silentpayment/core/keys'
@@ -52,7 +52,6 @@ export async function getSilentPaymentAddress(mnemonic: Mnemonic, network: Netwo
 }
 
 export async function getCoinPrivKey(coin: Utxo, network: NetworkName, mnemonic: Mnemonic): Promise<Buffer> {
-
   if (coin.silentPayment) {
     const spendKeyWallet = await getSilentPaymentSpendPrivateKey(mnemonic, network)
     const privKey = ecc.privateAdd(spendKeyWallet, Buffer.from(coin.silentPayment.tweak, 'hex'))
@@ -64,6 +63,16 @@ export async function getCoinPrivKey(coin: Utxo, network: NetworkName, mnemonic:
 
 export function getBalance(wallet: Wallet): Satoshis {
   return wallet.utxos[wallet.network].reduce((sum, utxo) => sum + utxo.value, 0)
+}
+
+export async function getScanOnlyKeys(mnemonic: Mnemonic, network: NetworkName): Promise<ScanOnlyKeySet>{
+  const scanPrivKey = await getSilentPaymentScanPrivateKey(mnemonic, network);
+  const pubKeys = await getSilentPaymentPublicKeys(mnemonic, network)
+
+  return {
+    scan_priv_key: Buffer.from(scanPrivKey).toString('hex'),
+    spend_pub_key: pubKeys[network].spendPublicKey
+  }
 }
 
 export async function getKeys(mnemonic: Mnemonic): Promise<PublicKeys> {
