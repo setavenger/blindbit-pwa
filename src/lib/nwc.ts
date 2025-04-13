@@ -1,5 +1,5 @@
 import { webln } from '@getalby/sdk'
-import { Utxo, Label } from './types'
+import { Utxo } from './types'
 
 interface NWCUtxo {
   txid: string
@@ -15,10 +15,6 @@ interface NWCUtxo {
     address: string
     m: number
   }
-}
-
-interface NWCResponse {
-  utxos: NWCUtxo[]
 }
 
 interface NWCInfo {

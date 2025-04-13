@@ -28,7 +28,6 @@ export default function InitOld() {
 
   const [label, setLabel] = useState(ButtonLabel.Incomplete)
   const [mnemonic, setMnemonic] = useState('')
-  const [birthHeight, setBirthHeight] = useState(-1)
   const [step, setStep] = useState(Step.Passphrase)
 
   useEffect(() => {
@@ -38,14 +37,6 @@ export default function InitOld() {
     const valid = validateMnemonic(words.join(' '), wordlist)
     setLabel(valid ? ButtonLabel.Ok : ButtonLabel.Invalid)
   }, [mnemonic])
-
-  const handleBirthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target
-    const birth = parseInt(value, 10)
-    if (Number.isNaN(birth) || birth < 0) setLabel(ButtonLabel.Invalid)
-    setBirthHeight(parseInt(value, 10))
-    setLabel(ButtonLabel.Ok)
-  }
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMnemonic(e.target.value)
@@ -59,7 +50,7 @@ export default function InitOld() {
       return
     }
 
-    setInitInfo({ mnemonic: mnemonic.trim(), restoreFrom: birthHeight })
+    setInitInfo({ mnemonic: mnemonic.trim(), restoreFrom: 0 })
     navigate(Pages.InitPassword)
   }
 

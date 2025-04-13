@@ -8,12 +8,11 @@ import Select from '../../components/Select'
 import Container from '../../components/Container'
 import Content from '../../components/Content'
 import { WalletContext } from '../../providers/wallet'
-import Input from '../../components/Input'
 import Option from '../../components/Option'
 
 export default function Explorer() {
   const { toggleShowConfig } = useContext(ConfigContext)
-  const { changeExplorer, changeNWCURL, wallet } = useContext(WalletContext)
+  const { changeExplorer, wallet } = useContext(WalletContext)
 
   const explorerNames = getExplorerNames(wallet.network)
   const [explorer, setExplorer] = useState(explorerNames.includes(wallet.explorer) ? wallet.explorer : explorerNames[0])

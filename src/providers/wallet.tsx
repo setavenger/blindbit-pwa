@@ -7,7 +7,7 @@ import { ExplorerName, getExplorerNames, getRestApiExplorerURL } from '../lib/ex
 import { defaultExplorer, defaultNetwork } from '../lib/constants'
 import { getSilentPaymentScanPrivateKey, isInitialized } from '../lib/wallet'
 import { EsploraChainSource } from '../lib/chainsource'
-import { Updater, applyUpdate } from '../lib/updater'
+import { applyUpdate } from '../lib/updater'
 import { notify } from '../components/Toast'
 import { NWCService } from '../lib/nwc'
 
@@ -81,7 +81,6 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   const { navigate } = useContext(NavigationContext)
 
   const [scanning, setScanning] = useState(false)
-  const [scanningProgress, setScanningProgress] = useState<number>()
   const [wallet, setWallet] = useStorage<Wallet>('wallet', defaultWallet)
 
   const changeExplorer = async (explorer: ExplorerName) => {
@@ -126,7 +125,6 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     }
     try {
       setScanning(true)
-      setScanningProgress(0)
 
       const scanPrivKey = await getSilentPaymentScanPrivateKey(mnemonic, wallet.network)
 
@@ -154,7 +152,6 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       notify(extractErrorMessage(e))
     } finally {
       setScanning(false)
-      setScanningProgress(undefined)
     }
   }
 
