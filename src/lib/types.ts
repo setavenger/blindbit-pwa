@@ -1,4 +1,4 @@
-export type NetworkName = 'mainnet' | 'testnet' | 'regtest'
+export type NetworkName = 'mainnet' | 'testnet' | 'regtest' | 'signet'
 export type Mnemonic = string
 export type Satoshis = number
 

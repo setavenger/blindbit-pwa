@@ -36,6 +36,7 @@ export async function getSilentPaymentPublicKeys(mnemonic: Mnemonic, network: Ne
     mainnet: publicKeys,
     testnet: publicKeys,
     regtest: publicKeys,
+    signet: publicKeys,
   }
 }
 
@@ -76,11 +77,12 @@ export async function getScanOnlyKeys(mnemonic: Mnemonic, network: NetworkName):
 }
 
 export async function getKeys(mnemonic: Mnemonic): Promise<PublicKeys> {
-  const networks: NetworkName[] = [NetworkName.Mainnet, NetworkName.Testnet, NetworkName.Regtest]
+  const networks: NetworkName[] = [NetworkName.Mainnet, NetworkName.Testnet, NetworkName.Regtest, NetworkName.Signet]
   const keys: PublicKeys = {
     mainnet: { scanPublicKey: '', spendPublicKey: '' },
     testnet: { scanPublicKey: '', spendPublicKey: '' },
     regtest: { scanPublicKey: '', spendPublicKey: '' },
+    signet: { scanPublicKey: '', spendPublicKey: '' },
   }
 
   for (const network of networks) {

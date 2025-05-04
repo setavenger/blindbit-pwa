@@ -17,6 +17,7 @@ export interface Explorer {
   [NetworkName.Mainnet]?: ExplorerURLs
   [NetworkName.Testnet]?: ExplorerURLs
   [NetworkName.Regtest]?: ExplorerURLs
+  [NetworkName.Signet]?: ExplorerURLs
 }
 
 const explorers: Explorer[] = [
@@ -30,6 +31,10 @@ const explorers: Explorer[] = [
       rest: 'https://blockstream.info/testnet/api/',
       web: 'https://blockstream.info/testnet/',
     },
+    [NetworkName.Signet]: {
+      rest: 'https://blockstream.info/signet/api/',
+      web: 'https://blockstream.info/signet/',
+    },
   },
   {
     name: ExplorerName.Mempool,
@@ -41,6 +46,10 @@ const explorers: Explorer[] = [
   {
     name: ExplorerName.Nigiri,
     [NetworkName.Regtest]: {
+      rest: 'http://localhost:3000',
+      web: 'http://localhost:3000',
+    },
+    [NetworkName.Signet]: {
       rest: 'http://localhost:3000',
       web: 'http://localhost:3000',
     },

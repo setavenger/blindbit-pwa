@@ -59,7 +59,7 @@ export default function InitOld() {
   return (
     <Container>
       <Content>
-        <Title text='Restore wallet' subtext='Enter your 24-word mnemonic' />
+        <Title text='Restore wallet' subtext='Enter your 12/24-word mnemonic' />
         <p className='p-2' />
         <Textarea
           label='Mnemonic'

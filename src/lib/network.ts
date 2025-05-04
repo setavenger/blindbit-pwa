@@ -5,6 +5,7 @@ export type Network = typeof NETWORK
 export enum NetworkName {
   Mainnet = 'mainnet',
   Testnet = 'testnet',
+  Signet = 'signet',
   Regtest = 'regtest',
 }
 
@@ -13,6 +14,7 @@ export const getNetworkNames = (): [NetworkName, string][] => {
     [NetworkName.Mainnet, 'Mainnet'],
     [NetworkName.Testnet, 'Testnet'],
     [NetworkName.Regtest, 'Regtest'],
+    [NetworkName.Signet, 'Signet'],
   ]
 }
 
@@ -21,5 +23,6 @@ export const getNetwork = (network: NetworkName): Network => {
   if (net === 'mainnet') return NETWORK
   if (net === 'testnet') return TEST_NETWORK
   if (net === 'regtest') return TEST_NETWORK
+  if (net === 'signet') return TEST_NETWORK
   throw new Error(`Invalid network ${network}`)
 }

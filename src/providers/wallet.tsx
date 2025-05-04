@@ -30,26 +30,31 @@ const defaultWallet: Wallet = {
     [NetworkName.Mainnet]: [],
     [NetworkName.Regtest]: [],
     [NetworkName.Testnet]: [],
+    [NetworkName.Signet]: [],
   },
   transactions: {
     [NetworkName.Mainnet]: [],
     [NetworkName.Regtest]: [],
     [NetworkName.Testnet]: [],
+    [NetworkName.Signet]: [],
   },
   utxos: {
     [NetworkName.Mainnet]: [],
     [NetworkName.Regtest]: [],
     [NetworkName.Testnet]: [],
+    [NetworkName.Signet]: [],
   },
   publicKeys: {
     [NetworkName.Mainnet]: { scanPublicKey: '', spendPublicKey: '' },
     [NetworkName.Regtest]: { scanPublicKey: '', spendPublicKey: '' },
     [NetworkName.Testnet]: { scanPublicKey: '', spendPublicKey: '' },
+    [NetworkName.Signet]: { scanPublicKey: '', spendPublicKey: '' },
   },
   scannedBlockHeight: {
     [NetworkName.Mainnet]: -1,
     [NetworkName.Regtest]: -1,
     [NetworkName.Testnet]: -1,
+    [NetworkName.Signet]: -1,
   },
 }
 

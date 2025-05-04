@@ -21,6 +21,7 @@ import About from './About'
 import DarkThemeIcon from '../../icons/DarkTheme'
 import Theme from './Theme'
 import { isInitialized } from '../../lib/wallet'
+import BlindBitIcon from '../../icons/BlindBit'
 
 enum Options {
   Menu = 'menu',
@@ -58,7 +59,7 @@ export default function Settings() {
       option: Options.Backup,
     },
     {
-      icon: <ExplorerIcon />,
+      icon: <BlindBitIcon />,
       option: Options.BlindBit,
     },
     {
