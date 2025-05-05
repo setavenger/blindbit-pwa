@@ -75,7 +75,7 @@ export default function Explorer() {
           </div>
           <br/>
           <div className='grid justify-items-center'>
-            <p className='font-bold'>Scan Public Key</p>
+            <p className='font-bold'>Spend Public Key</p>
             <p className='mt-2 font-mono break-all'>{spendPubKey}</p>
             <div className='w-1/2 mt-2'>
             <Button 
