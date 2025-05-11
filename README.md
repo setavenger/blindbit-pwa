@@ -11,6 +11,8 @@ Massiv cudos to Louis Singer, it took very little time to make the necessary ada
 
 > **This is an experimental project acting as a proof of concept for Silent Payments light wallets. Use at your own risk.**
 
+A known bug: This wallet does not use label m=0 for change, it just sends to the base address.
+
 <p align="center">
     <a href="https://app.silentium.dev">app.silentium.dev</a>
 </p>
