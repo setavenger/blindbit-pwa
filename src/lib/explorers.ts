@@ -31,10 +31,6 @@ const explorers: Explorer[] = [
       rest: 'https://blockstream.info/testnet/api/',
       web: 'https://blockstream.info/testnet/',
     },
-    [NetworkName.Signet]: {
-      rest: 'https://blockstream.info/signet/api/',
-      web: 'https://blockstream.info/signet/',
-    },
   },
   {
     name: ExplorerName.Mempool,
@@ -42,17 +38,21 @@ const explorers: Explorer[] = [
       rest: 'https://mempool.space/api/',
       web: 'https://mempool.space/',
     },
+    [NetworkName.Testnet]: {
+      rest: 'https://mempool.space/testnet/api/',
+      web: 'https://mempool.space/testnet/',
+    },
+    [NetworkName.Signet]: {
+      rest: 'https://mempool.space/signet/api/',
+      web: 'https://mempool.space/signet/',
+    },
   },
   {
     name: ExplorerName.Nigiri,
     [NetworkName.Regtest]: {
       rest: 'http://localhost:3000',
       web: 'http://localhost:3000',
-    },
-    [NetworkName.Signet]: {
-      rest: 'http://localhost:3000',
-      web: 'http://localhost:3000',
-    },
+    }
   },
 ]
 

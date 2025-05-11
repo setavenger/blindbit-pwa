@@ -13,23 +13,51 @@ import { getScanOnlyKeys } from '../../lib/wallet'
 
 export default function Explorer() {
   const { toggleShowConfig } = useContext(ConfigContext)
-  const { changeNWCURL, wallet } = useContext(WalletContext)
+  const { changeBlindbitConnection, wallet } = useContext(WalletContext)
 
   const [mnemonic, setMnemonic] = useState<Mnemonic>('')
 
+  // BlindBit Connection options
+  // NWC
   const [nwcURL, setNWCURL] = useState('')
+  // API-REST
+  const [apiRestURL, setApiRestURL] = useState('')
+  const [apiUser, setApiUser] = useState('')
+  const [apiPass, setApiPass] = useState('')
+  
   const [scanPrivKey, setScanPrivKey] = useState('')
   const [spendPubKey, setSpendPubKey] = useState('')
 
   const [scanCopied, setScanCopied] = useState(false)
   const [spendCopied, setSpendCopied] = useState(false)
 
+  useEffect(() => {
+    console.log('wallet', wallet)
+    setNWCURL(wallet.nwcURL)
+    setApiRestURL(wallet.apiRestURL)
+    setApiUser(wallet.apiUser)
+    setApiPass(wallet.apiPass)
+  }, [wallet])
+
   const handleChangeNWCURL = (e: any) => {
     setNWCURL(e.target.value)
   }
+  const handleChangeApiRestURL = (e: any) => {
+    setApiRestURL(e.target.value)
+  }
+  const handleChangeApiUser = (e: any) => {
+    setApiUser(e.target.value)
+  }
+  const handleChangeApiPass = (e: any) => {
+    setApiPass(e.target.value)
+  }
 
   const save = () => {
-    if (nwcURL) changeNWCURL(nwcURL)
+    console.log('nwcURL', nwcURL)
+    console.log('apiRestURL', apiRestURL)
+    console.log('apiUser', apiUser)
+    console.log('apiPass', apiPass)
+    changeBlindbitConnection(nwcURL, apiRestURL, apiUser, apiPass)
     toggleShowConfig()
   }
 
@@ -59,7 +87,16 @@ export default function Explorer() {
     <Container>
       <Content>
         <Title text='BlindBit' subtext='Setup BlindBit Scan' />
-        <Input label='NWC' placeholder={wallet.nwcURL} onChange={handleChangeNWCURL} type="text" />
+        {/* BlindBit Connection options */}
+        {/* Either NWC or API-REST */}
+        <div className="text-sm text-gray-500 mb-2">Note: Only NWC or API-REST is required. API-REST takes precedence if both are provided.</div>
+        <span className='font-bold'>API-REST</span>
+        <Input label='API-REST (include http:// or https://)' value={apiRestURL} onChange={handleChangeApiRestURL} type="text" />
+        <Input label='API-USER' value={apiUser} onChange={handleChangeApiUser} type="text" />
+        <Input label='API-PASS' value={apiPass} onChange={handleChangeApiPass} type="password" />
+        <br/>
+        <span className='font-bold'>NWC</span>
+        <Input label='NWC' value={nwcURL} onChange={handleChangeNWCURL} type="text" />
         <br/>
         <div>
           <div className='grid justify-items-center'>

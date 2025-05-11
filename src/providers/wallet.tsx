@@ -10,6 +10,8 @@ import { EsploraChainSource } from '../lib/chainsource'
 import { applyUpdate } from '../lib/updater'
 import { notify } from '../components/Toast'
 import { NWCService } from '../lib/nwc'
+import { BlindBitInfo } from '../lib/blindbit-types'
+import { BlindBitScanAPI } from '../lib/blindbit-scan-api'
 
 export interface Wallet {
   explorer: ExplorerName
@@ -20,12 +22,18 @@ export interface Wallet {
   publicKeys: PublicKeys
   scannedBlockHeight: Record<NetworkName, number>
   nwcURL: string
+  apiRestURL: string
+  apiUser: string
+  apiPass: string
 }
 
 const defaultWallet: Wallet = {
   explorer: defaultExplorer,
   network: defaultNetwork,
   nwcURL: '',
+  apiRestURL: '',
+  apiUser: '',
+  apiPass: '',
   mempoolTransactions: {
     [NetworkName.Mainnet]: [],
     [NetworkName.Regtest]: [],
@@ -60,7 +68,7 @@ const defaultWallet: Wallet = {
 
 interface WalletContextProps {
   changeExplorer: (e: ExplorerName) => void
-  changeNWCURL: (url: string) => void
+  changeBlindbitConnection: (nwcURL: string, apiRestURL: string, apiUser: string, apiPass: string) => void
   changeNetwork: (n: NetworkName) => void
   reloadWallet: (mnemonic: Mnemonic, wallet: Wallet) => void
   resetWallet: () => void
@@ -72,7 +80,7 @@ interface WalletContextProps {
 
 export const WalletContext = createContext<WalletContextProps>({
   changeExplorer: () => {},
-  changeNWCURL: () => {},
+  changeBlindbitConnection: () => {},
   changeNetwork: () => {},
   reloadWallet: () => {},
   pushMempoolTransaction: () => {},
@@ -122,22 +130,44 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     setWallet(clone)
   }
 
+  const changeBlindbitConnection = async (nwcURL: string, apiRestURL: string, apiUser: string, apiPass: string) => {
+    const clone = {
+      ...wallet,
+      nwcURL: nwcURL,
+      apiRestURL: apiRestURL,
+      apiUser: apiUser,
+      apiPass: apiPass
+    }
+    setWallet(clone)
+  } 
+
+  const hasApiRestConnection = () => {
+    return wallet.apiRestURL !== '' && wallet.apiUser !== '' && wallet.apiPass !== ''
+  }  
+
   const reloadWallet = async (mnemonic: string, wallet: Wallet) => {
     if (!mnemonic || scanning) return
-    if (wallet.nwcURL === '') {
-      notify('set nostr wallet connect in explorer settings')
+    if (wallet.nwcURL === '' && !hasApiRestConnection()) {
+      notify('BlindBit connection settings missing')
       return
     }
     try {
       setScanning(true)
 
-      const scanPrivKey = await getSilentPaymentScanPrivateKey(mnemonic, wallet.network)
+      let info: BlindBitInfo
+      let utxos: Utxo[]
 
-      const nwc = new NWCService(scanPrivKey.toString('hex'), wallet.nwcURL)
-      await nwc.enable()
-
-      const info = await nwc.getInfo()
-      const utxos = await nwc.getUtxos()
+      if (hasApiRestConnection()) {
+        const api = new BlindBitScanAPI(wallet.apiRestURL, wallet.apiUser, wallet.apiPass)
+        info = await api.getInfo()
+        utxos = await api.getUtxos()
+      } else {
+        const nwc = new NWCService(wallet.nwcURL)
+        await nwc.enable()
+  
+        info = await nwc.getInfo()
+        utxos = await nwc.getUtxos()
+      }
 
       const updatedWallet = {
         ...wallet,
@@ -224,7 +254,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     <WalletContext.Provider
       value={{
         changeExplorer,
-        changeNWCURL,
+        changeBlindbitConnection,
         changeNetwork,
         reloadWallet,
         resetWallet,

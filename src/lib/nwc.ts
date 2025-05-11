@@ -1,30 +1,12 @@
 import { webln } from '@getalby/sdk'
 import { Utxo } from './types'
+import { BlindBitInfo, BlindBitUtxo } from './blindbit-types'
 
-interface NWCUtxo {
-  txid: string
-  vout: number
-  amount: number
-  priv_key_tweak: string
-  pub_key: string
-  timestamp: number
-  utxo_state: string
-  label?: {
-    pub_key: string
-    tweak: string
-    address: string
-    m: number
-  }
-}
-
-interface NWCInfo {
-  blockHeight: number
-}
 
 export class NWCService {
   private nwc: webln.NostrWebLNProvider
 
-  constructor(private scanPrivKey: string, private nwcUrl: string) {
+  constructor(nwcUrl: string) {
     this.nwc = new webln.NostrWebLNProvider({
       nostrWalletConnectUrl: nwcUrl
     })
@@ -36,7 +18,7 @@ export class NWCService {
 
   async getUtxos(): Promise<Utxo[]> {
     const response = await this.nwc.listUtxos()
-    return response.utxos.filter((utxo: NWCUtxo) => utxo.utxo_state === 'unspent').map((utxo: NWCUtxo) => ({
+    return response.utxos.filter((utxo: BlindBitUtxo) => utxo.utxo_state === 'unspent').map((utxo: BlindBitUtxo) => ({
       txid: utxo.txid,
       vout: utxo.vout,
       value: utxo.amount,
@@ -53,7 +35,7 @@ export class NWCService {
     }))
   }
 
-  async getInfo(): Promise<NWCInfo> {
+  async getInfo(): Promise<BlindBitInfo> {
     const info = await this.nwc.getInfo()
     return {
       blockHeight: info.blockHeight
