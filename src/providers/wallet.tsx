@@ -5,7 +5,7 @@ import { NetworkName } from '../lib/network'
 import { Mnemonic, Transactions, Utxos, PublicKeys, Transaction, Utxo } from '../lib/types'
 import { ExplorerName, getExplorerNames, getRestApiExplorerURL } from '../lib/explorers'
 import { defaultExplorer, defaultNetwork } from '../lib/constants'
-import { getSilentPaymentScanPrivateKey, isInitialized } from '../lib/wallet'
+import { isInitialized } from '../lib/wallet'
 import { EsploraChainSource } from '../lib/chainsource'
 import { applyUpdate } from '../lib/updater'
 import { notify } from '../components/Toast'
@@ -119,14 +119,6 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       }
     }
 
-    setWallet(clone)
-  }
-
-  const changeNWCURL = async (url: string) => {
-    const clone = {
-      ...wallet,
-      nwcURL: url
-    }
     setWallet(clone)
   }
 
